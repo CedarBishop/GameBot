@@ -19,13 +19,8 @@ async def on_message(message):
 
   msg = message.content
 
-  options = starter_encouragements
-  if "encouragements" in db.keys():
-    for enc in db["encouragements"]:
-      options.append(enc)
-
-  if msg.startswith('!greet'):
-    await greet(message, client)
+  if msg.startswith('!play'):
+    await play(message, client)
 
 
 keep_alive()
