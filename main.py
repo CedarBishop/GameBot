@@ -7,12 +7,15 @@ from keep_alive import keep_alive
 import utils
 from random import seed
 from random import randint
+from vector2 import Vector2
+from game import Game
 
 seed(1)
 
 last_game_state_id = 0
 
 client = discord.Client()
+games = {}
 
 @client.event
 async def on_ready():
@@ -31,7 +34,9 @@ async def on_message(message):
     if msg.startswith('!play'):
       global last_game_state_id
       last_game_state_id = message.id
-      await play(message, client)
+      games[message.author] = Game(Vector2(0,0), Vector2(0,0), Vector2(0,0))
+      games[message.author].new_level()
+      await play(message, client, games[message.author].get_board())
 
     if msg.startswith('!help'):
       await help(message, client)
@@ -54,16 +59,24 @@ async def on_reaction_add(reaction, user):
     #return
 
   if reaction.message.content.endswith('move?'):
+    user_input = 0
     if reaction.emoji == utils.up_arrow_emoji:
-      print("up")
+      user_input = 0
     elif reaction.emoji == utils.down_arrow_emoji:
-      print("down")
+      user_input = 2
     elif reaction.emoji == utils.left_arrow_emoji:
-      print("left")
+      user_input = 3
     elif reaction.emoji == utils.right_arrow_emoji:
-      print("right")
-    await update_game(reaction.message.channel, """-------\n|-------|""")
-  
+      user_input = 1
+
+    users = await reaction.users().flatten()
+    users = users[0]
+    if games[user].update_state(user_input):
+      await update_game(reaction.message.channel, user.name, games[user].get_board())
+    else:
+      await reaction.message.channel.send('Cannot move in that direction.')
+      await update_game(reaction.message.channel, user.name, games[user].get_board())
+
   elif reaction.message.content.startswith('Guess'):
     guess = 0
     answer = randint(0, 10)

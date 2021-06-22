@@ -6,9 +6,9 @@ from utils import *
 
 
 
-async def play(message, client):
+async def play(message, client, game_state):
   await message.channel.send('Hi {0.author}! Let\'s play a game.'.format(message)) 
-  await update_game(message.channel, """-------\n|-------|""")
+  await update_game(message.channel, message.author.name , game_state)
 
 async def help(message, client):
   await message.channel.send('The commands I have are:\n1. !play\n2. !guess\n3. !help')
@@ -29,5 +29,5 @@ async def guesses(message, client):
   await message.add_reaction(four_emoji)
   await message.add_reaction(five_emoji)
 
-async def update_game(channel, game_state):
-  await channel.send(game_state + '\nWhat is your next move?')
+async def update_game(channel, reaction_sender,  game_state):
+  await channel.send(game_state + '\n' + reaction_sender + ' what is your next move?')
